@@ -14,9 +14,9 @@ CLIENT_ID = "SensorPublisher"
 def generate_sensor_data():
     return {
         "timestamp": datetime.now().strftime("%H:%M:%S %d/%m/%Y"),
-        "temperature": round(random.uniform(20.0, 40.0), 2),  # Suhu dalam derajat Celcius
+        "temperature": round(random.uniform(15.0, 40.0), 2),  # Suhu dalam derajat Celcius
         "humidity": round(random.uniform(30.0, 80.0), 2),    # Kelembapan dalam persen
-        "co2": round(random.uniform(200.0, 800.0), 2),       # CO2 dalam ppm
+        "co2": round(random.uniform(2000.0, 8000.0), 2),       # CO2 dalam ppm
         "ammonia": round(random.uniform(0.0, 50.0), 2)       # Gas amonia dalam ppm
     }
 

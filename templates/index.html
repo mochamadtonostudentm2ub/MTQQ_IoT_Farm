@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Kandang Monitoring</title>
+    <style>
+        /* Container for Sensors */
+        .sensor-indicators {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .sensor-indicator {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease; /* Smooth transition for color change */
+        }
+
+        .sensor-indicator.green {
+            background-color: #d4edda; /* Green for normal */
+            border-color: #28a745;
+        }
+
+        .sensor-indicator.red {
+            background-color: #f8d7da; /* Red for abnormal */
+            border-color: #dc3545;
+        }
+
+        .sensor-indicator h3 {
+            margin: 5px 0;
+        }
+
+        /* Devices Container */
+        .devices-container {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        /* Fan Animation */
+        .fan {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+
+        .fan svg {
+            width: 150px;
+            height: 150px;
+            animation: spin 0s linear infinite; /* Default: no spin */
+        }
+
+        .fan.on svg {
+            animation: spin 1s linear infinite; /* Spinning when ON */
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Lamp Animation */
+        .lamp {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 200px;
+            position: relative;
+        }
+
+        .lamp svg {
+            width: 80px;
+            height: 150px;
+            filter: brightness(0.5);
+            transition: filter 0.3s, box-shadow 0.3s;
+        }
+
+        .lamp.on svg {
+            filter: brightness(2);
+            box-shadow: 0 0 25px yellow;
+        }
+
+        .lamp p {
+            margin-top: 10px;
+        }
+
+        /* Table Style */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kandang Monitoring</h1>
+        
+        <!-- Status Section -->
+        <div id="status-section">
+            <h2>Status Kandang</h2>
+            <p id="status">Loading...</p>
+        </div>
+
+        <!-- Sensor Indicators Section -->
+        <div class="sensor-indicators">
+            <div id="temperature-indicator" class="sensor-indicator">
+                <h3>Suhu</h3>
+                <p id="temperature">Loading...</p>
+            </div>
+            <div id="humidity-indicator" class="sensor-indicator">
+                <h3>Kelembapan</h3>
+                <p id="humidity">Loading...</p>
+            </div>
+            <div id="co2-indicator" class="sensor-indicator">
+                <h3>Gas CO2</h3>
+                <p id="co2">Loading...</p>
+            </div>
+            <div id="ammonia-indicator" class="sensor-indicator">
+                <h3>Amonia</h3>
+                <p id="ammonia">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Devices Section -->
+        <div class="devices-container">
+            <!-- Fan -->
+            <div id="fan" class="fan">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" stroke="lightgray" stroke-width="5" fill="none"/>
+                    <line x1="50" y1="50" x2="50" y2="10" stroke="blue" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="50" y1="50" x2="90" y2="50" stroke="blue" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="50" y1="50" x2="10" y2="50" stroke="blue" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="50" y1="50" x2="50" y2="90" stroke="blue" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+                <p id="fan-status">Loading...</p>
+            </div>
+
+            <!-- Lamp -->
+            <div id="lamp" class="lamp">
+                <svg viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="50" y1="0" x2="50" y2="20" stroke="gray" stroke-width="4" />
+                    <ellipse cx="50" cy="60" rx="30" ry="40" fill="yellow" />
+                    <rect x="35" y="100" width="30" height="10" fill="black" />
+                </svg>
+                <p id="lamp-status">Loading...</p>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div id="history-section">
+            <h2>History Tindakan Sensor</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Suhu</th>
+                        <th>Kelembapan</th>
+                        <th>Gas CO2</th>
+                        <th>Amonia</th>
+                        <th>Status Kandang</th>
+                        <th>Status Kipas</th>
+                        <th>Status Lampu</th>
+                        <th>Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table">
+                    <tr>
+                        <td colspan="9">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatus() {
+            const response = await fetch('/status');
+            const data = await response.json();
+            console.log("Fetched data:", data);
+
+            const thresholds = {
+                temperature: { min: 20, max: 35 },
+                humidity: { min: 40, max: 70 },
+                co2: { min: 3000, max: 7000 },
+                ammonia: { min: 0, max: 25 }
+            };
+
+            updateSensorIndicator('temperature', data.temperature, thresholds.temperature);
+            updateSensorIndicator('humidity', data.humidity, thresholds.humidity);
+            updateSensorIndicator('co2', data.co2, thresholds.co2);
+            updateSensorIndicator('ammonia', data.ammonia, thresholds.ammonia);
+
+            document.getElementById('status').innerText = data.status;
+
+            const fanElement = document.getElementById('fan');
+            fanElement.classList.toggle('on', data.fan_status === 'ON');
+            document.getElementById('fan-status').innerText = `Kipas: ${data.fan_status}`;
+
+            const lampElement = document.getElementById('lamp');
+            lampElement.classList.toggle('on', data.lamp_status === 'ON');
+            document.getElementById('lamp-status').innerText = `Lampu Tambahan: ${data.lamp_status}`;
+        }
+
+        async function fetchHistory() {
+            const response = await fetch('/history');
+            const data = await response.json();
+            const tableBody = document.getElementById('history-table');
+            tableBody.innerHTML = '';
+
+            data.reverse().forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.timestamp || "N/A"}</td>
+                    <td>${item.temperature || "N/A"} °C</td>
+                    <td>${item.humidity || "N/A"} %</td>
+                    <td>${item.co2 || "N/A"} ppm</td>
+                    <td>${item.ammonia || "N/A"} ppm</td>
+                    <td>${item.status}</td>
+                    <td>${item.fan_status}</td>
+                    <td>${item.lamp_status}</td>
+                    <td>${item.actions.join(", ") || "Tidak ada tindakan"}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateSensorIndicator(sensor, value, threshold) {
+            const indicator = document.getElementById(`${sensor}-indicator`);
+            const element = document.getElementById(sensor);
+
+            if (value < threshold.min || value > threshold.max) {
+                indicator.classList.remove('green');
+                indicator.classList.add('red');
+            } else {
+                indicator.classList.remove('red');
+                indicator.classList.add('green');
+            }
+
+            element.innerText = `${value || "N/A"} ${sensor === 'temperature' ? '°C' : sensor === 'humidity' ? '%' : 'ppm'}`;
+        }
+
+        setInterval(() => {
+            fetchStatus();
+            fetchHistory();
+        }, 5000);
+
+        fetchStatus();
+        fetchHistory();
+    </script>
+</body>
+</html>
